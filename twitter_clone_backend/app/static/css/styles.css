@@ -1,25 +1,41 @@
+/* ============================================================
+   Twitter Clone — Mobile-First Responsive CSS
+   Breakpoints: mobile <600px | tablet 600-1024px | desktop >1024px
+   ============================================================ */
+
 :root {
     --bg-primary: #0a0a0a;
     --bg-secondary: rgba(20, 20, 20, 0.7);
     --bg-glass: rgba(30, 30, 30, 0.4);
     --border-color: rgba(255, 255, 255, 0.08);
-    
+
     --text-primary: #ffffff;
     --text-secondary: #8899a6;
-    
-    --brand-primary: #1d9bf0; /* Twitter blue, could be neon cyan: #00f0ff */
+
+    --brand-primary: #1d9bf0;
     --brand-hover: #1a8cd8;
-    
+
     --error-color: #f4212e;
     --success-color: #00ba7c;
-    
+
     --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    /* Bottom nav height on mobile — used to offset content */
+    --bottom-nav-height: 56px;
 }
 
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+html {
+    /* Prevent font size inflation on iOS */
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -29,11 +45,20 @@ body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     overflow-y: scroll;
+    /* Avoid content going under mobile browser chrome */
+    padding-bottom: var(--bottom-nav-height);
+}
+
+@media (min-width: 600px) {
+    body {
+        padding-bottom: 0;
+    }
 }
 
 a {
     color: var(--text-primary);
     text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 button {
@@ -42,6 +67,7 @@ button {
     border: none;
     outline: none;
     background: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Glassmorphism utility */
@@ -52,15 +78,23 @@ button {
     border: 1px solid var(--border-color);
 }
 
-/* Main Layout Grid */
+/* ============================================================
+   MAIN LAYOUT GRID
+   Mobile: single column, sidebar hidden → bottom nav shown
+   Tablet: icon sidebar + content
+   Desktop: full sidebar + content + right sidebar
+   ============================================================ */
 .app-container {
     display: flex;
     max-width: 1280px;
     margin: 0 auto;
     min-height: 100vh;
+    position: relative;
 }
 
-/* Sidebar */
+/* ============================================================
+   SIDEBAR (left nav) — hidden on mobile, icon-only on tablet
+   ============================================================ */
 .sidebar {
     width: 275px;
     padding: 1rem;
@@ -70,6 +104,57 @@ button {
     position: sticky;
     top: 0;
     height: 100vh;
+    flex-shrink: 0;
+}
+
+/* Hide sidebar completely on mobile */
+@media (max-width: 599px) {
+    .sidebar {
+        display: none;
+    }
+}
+
+/* Icon-only sidebar on tablet */
+@media (min-width: 600px) and (max-width: 1023px) {
+    .sidebar {
+        width: 72px;
+        align-items: center;
+        padding: 0.5rem;
+    }
+    .sidebar-logo {
+        padding: 12px;
+        margin-bottom: 0.5rem;
+    }
+    .nav-item span,
+    .user-info,
+    .tweet-btn-text {
+        display: none;
+    }
+    .nav-item {
+        padding: 12px;
+        padding-right: 12px;
+        justify-content: center;
+    }
+    .tweet-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0;
+    }
+    .tweet-btn-icon {
+        display: block !important;
+        font-size: 1.5rem;
+    }
+    .user-miniprofile {
+        padding: 12px;
+    }
+    .user-miniprofile .ph-dots-three {
+        display: none;
+    }
 }
 
 .sidebar-logo {
@@ -94,7 +179,7 @@ button {
     gap: 1.25rem;
     padding: 12px;
     border-radius: 9999px;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 400;
     transition: background-color 0.2s;
     width: max-content;
@@ -111,6 +196,7 @@ button {
 
 .nav-item i {
     font-size: 1.75rem;
+    flex-shrink: 0;
 }
 
 .tweet-btn {
@@ -122,17 +208,28 @@ button {
     width: 90%;
 }
 
+/* Icon shown only on tablet when text is hidden */
+.tweet-btn-icon {
+    display: none;
+}
+
 .btn-primary {
     background-color: var(--brand-primary);
     color: white;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 .btn-primary:hover {
     background-color: var(--brand-hover);
 }
 
-/* User Mini Profile */
+.btn-primary:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   USER MINI PROFILE
+   ============================================================ */
 .user-miniprofile {
     margin-top: auto;
     display: flex;
@@ -153,22 +250,30 @@ button {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); /* Cool gradient avatar */
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    flex-shrink: 0;
 }
 
 .user-info {
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-width: 0; /* prevent overflow */
 }
 
 .display-name {
     font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .handle {
     color: var(--text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .logout-menu {
@@ -182,6 +287,7 @@ button {
     padding: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     backdrop-filter: blur(20px);
+    z-index: 100;
 }
 
 .logout-menu button {
@@ -191,6 +297,8 @@ button {
     color: var(--text-primary);
     font-size: 1rem;
     font-weight: 600;
+    border-radius: 8px;
+    transition: background-color 0.2s;
 }
 
 .logout-menu button:hover {
@@ -201,18 +309,114 @@ button {
     display: none !important;
 }
 
-/* Main Content */
+/* ============================================================
+   MOBILE BOTTOM NAV BAR
+   ============================================================ */
+.mobile-bottom-nav {
+    display: none;
+}
+
+@media (max-width: 599px) {
+    .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: var(--bottom-nav-height);
+        background: rgba(10, 10, 10, 0.95);
+        border-top: 1px solid var(--border-color);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        z-index: 200;
+        align-items: center;
+        justify-content: space-around;
+        padding: 0 8px;
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        height: 100%;
+        color: var(--text-secondary);
+        font-size: 1.75rem;
+        transition: color 0.2s;
+        padding: 8px;
+        border-radius: 12px;
+    }
+
+    .mobile-nav-item.active {
+        color: var(--text-primary);
+    }
+
+    .mobile-nav-item:hover,
+    .mobile-nav-item:active {
+        color: var(--text-primary);
+        background-color: rgba(255,255,255,0.05);
+    }
+
+    /* Floating compose button on mobile */
+    .mobile-compose-fab {
+        position: fixed;
+        bottom: calc(var(--bottom-nav-height) + 16px);
+        right: 16px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background-color: var(--brand-primary);
+        color: white;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(29, 155, 240, 0.4);
+        z-index: 200;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .mobile-compose-fab:active {
+        transform: scale(0.93);
+        box-shadow: 0 2px 10px rgba(29, 155, 240, 0.3);
+    }
+}
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
 .main-content {
     flex: 1;
     max-width: 600px;
     border-right: 1px solid var(--border-color);
     min-height: 100vh;
+    min-width: 0; /* prevent flex overflow */
 }
 
-/* Right Sidebar */
+/* On mobile, main content takes full width */
+@media (max-width: 599px) {
+    .main-content {
+        max-width: 100%;
+        border-right: none;
+        width: 100%;
+    }
+}
+
+/* ============================================================
+   RIGHT SIDEBAR
+   ============================================================ */
 .right-sidebar {
     width: 350px;
     padding: 1rem 2rem;
+    flex-shrink: 0;
+}
+
+/* Hide right sidebar on tablet and below */
+@media (max-width: 1023px) {
+    .right-sidebar {
+        display: none;
+    }
 }
 
 .search-bar {
@@ -224,6 +428,7 @@ button {
     gap: 12px;
     margin-bottom: 1.5rem;
     border: 1px solid transparent;
+    transition: border-color 0.2s;
 }
 
 .search-bar:focus-within {
@@ -279,27 +484,35 @@ button {
     font-size: 0.95rem;
 }
 
-/* Auth Page Specifics */
+/* ============================================================
+   AUTH PAGE — mobile-first
+   ============================================================ */
 .auth-page {
     display: flex;
-    height: 100vh;
-    width: 100vw;
-    margin-left: -275px; /* offset sidebar */
-    position: absolute;
+    min-height: 100vh;
+    width: 100%;
+    position: fixed;
     top: 0;
     left: 0;
-    z-index: 10;
+    z-index: 300;
     background: var(--bg-primary);
 }
 
+/* Left visual — hidden on mobile, shown on tablet+ */
 .auth-visual-section {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(to bottom right, #0a0a0a, #1a1a2e, #16213e);
-    position: relative;
-    overflow: hidden;
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .auth-visual-section {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(to bottom right, #0a0a0a, #1a1a2e, #16213e);
+        position: relative;
+        overflow: hidden;
+    }
 }
 
 .auth-visual-section::before {
@@ -317,37 +530,57 @@ button {
 }
 
 .massive-logo {
-    font-size: 300px;
+    font-size: clamp(120px, 20vw, 300px);
     color: rgba(255, 255, 255, 0.1);
     z-index: 1;
 }
 
 .auth-form-section {
-    width: 45%;
-    min-width: 400px;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+    .auth-form-section {
+        width: 45%;
+        min-width: 420px;
+        padding: 2rem;
+    }
 }
 
 .auth-container {
     width: 100%;
     max-width: 450px;
-    padding: 3rem;
+    padding: 2rem 1.5rem;
     border-radius: 24px;
 }
 
+@media (min-width: 480px) {
+    .auth-container {
+        padding: 2.5rem 2rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .auth-container {
+        padding: 3rem;
+    }
+}
+
 .auth-title {
-    font-size: 3.5rem;
+    font-size: clamp(2rem, 8vw, 3.5rem);
     font-weight: 800;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     letter-spacing: -1px;
 }
 
 .auth-subtitle {
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+    margin-bottom: 1.5rem;
 }
 
 .input-group {
@@ -370,6 +603,8 @@ button {
     border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.2s, box-shadow 0.2s;
+    /* Prevent iOS zoom on focus (font must be >= 16px) */
+    font-size: 16px;
 }
 
 .input-group input:focus {
@@ -385,6 +620,8 @@ button {
     font-weight: 700;
     border-radius: 9999px;
     margin-top: 1rem;
+    /* Tall enough to be easily tappable */
+    min-height: 48px;
 }
 
 .auth-switch-text {
@@ -412,18 +649,29 @@ button {
     border: 1px solid rgba(244, 33, 46, 0.3);
 }
 
-/* Feed Headers */
+/* ============================================================
+   STICKY HEADER
+   ============================================================ */
 .sticky-header {
     position: sticky;
     top: 0;
-    z-index: 5;
-    background: rgba(10, 10, 10, 0.85); /* override glass for readability */
+    z-index: 100;
+    background: rgba(10, 10, 10, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .feed-header h2 {
-    font-size: 1.25rem;
-    padding: 1rem;
+    font-size: 1.1rem;
+    padding: 0.85rem 1rem;
     font-weight: 700;
+}
+
+@media (min-width: 600px) {
+    .feed-header h2 {
+        font-size: 1.25rem;
+        padding: 1rem;
+    }
 }
 
 .feed-tabs {
@@ -433,12 +681,19 @@ button {
 
 .feed-tabs .tab-btn {
     flex: 1;
-    padding: 1rem;
+    padding: 0.85rem 1rem;
     color: var(--text-secondary);
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.9rem;
     transition: background-color 0.2s;
     position: relative;
+}
+
+@media (min-width: 600px) {
+    .feed-tabs .tab-btn {
+        padding: 1rem;
+        font-size: 1rem;
+    }
 }
 
 .feed-tabs .tab-btn:hover {
@@ -461,13 +716,29 @@ button {
     border-radius: 9999px;
 }
 
-/* Compose Post */
+/* ============================================================
+   COMPOSE POST
+   ============================================================ */
 .compose-post-container {
     display: flex;
-    padding: 1rem;
-    gap: 12px;
+    padding: 0.75rem;
+    gap: 10px;
     border-bottom: 1px solid var(--border-color);
     background: rgba(10, 10, 10, 0.5);
+}
+
+@media (min-width: 600px) {
+    .compose-post-container {
+        padding: 1rem;
+        gap: 12px;
+    }
+}
+
+/* On mobile, hide the desktop compose box (FAB is used instead) */
+@media (max-width: 599px) {
+    .compose-post-container {
+        display: none;
+    }
 }
 
 .compose-avatar {
@@ -476,6 +747,7 @@ button {
 
 .compose-form {
     flex: 1;
+    min-width: 0;
 }
 
 .compose-form textarea {
@@ -483,12 +755,18 @@ button {
     background: none;
     border: none;
     color: var(--text-primary);
-    font-size: 1.25rem;
+    font-size: 1rem;
     resize: none;
     outline: none;
     font-family: var(--font-family);
     min-height: 50px;
     padding-top: 12px;
+}
+
+@media (min-width: 600px) {
+    .compose-form textarea {
+        font-size: 1.25rem;
+    }
 }
 
 .compose-form textarea::placeholder {
@@ -506,8 +784,14 @@ button {
 
 .compose-tools {
     display: flex;
-    gap: 16px;
+    gap: 8px;
     color: var(--brand-primary);
+}
+
+@media (min-width: 600px) {
+    .compose-tools {
+        gap: 16px;
+    }
 }
 
 .compose-tools i {
@@ -526,6 +810,89 @@ button {
     padding: 8px 16px;
     border-radius: 9999px;
     font-weight: 700;
+    min-height: 36px;
+}
+
+/* ============================================================
+   MOBILE COMPOSE MODAL (for FAB)
+   ============================================================ */
+.mobile-compose-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    align-items: flex-end;
+}
+
+.mobile-compose-modal.open {
+    display: flex;
+}
+
+.mobile-compose-sheet {
+    background: #161616;
+    border-radius: 24px 24px 0 0;
+    border-top: 1px solid var(--border-color);
+    padding: 1rem;
+    width: 100%;
+    max-height: 75vh;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.mobile-compose-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobile-compose-header .close-btn {
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.mobile-compose-header .close-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.mobile-compose-body {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+}
+
+.mobile-compose-body textarea {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    resize: none;
+    outline: none;
+    font-family: var(--font-family);
+    min-height: 80px;
+}
+
+.mobile-compose-body textarea::placeholder {
+    color: var(--text-secondary);
+}
+
+.mobile-compose-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
 }
 
 .divider {
@@ -533,22 +900,36 @@ button {
     background-color: var(--border-color);
 }
 
-/* Post Styling */
+/* ============================================================
+   POST CARDS
+   ============================================================ */
 .post {
     display: flex;
-    padding: 1rem;
+    padding: 0.75rem;
     border-bottom: 1px solid var(--border-color);
-    gap: 12px;
+    gap: 10px;
     cursor: pointer;
     transition: background-color 0.2s;
+}
+
+@media (min-width: 600px) {
+    .post {
+        padding: 1rem;
+        gap: 12px;
+    }
 }
 
 .post:hover {
     background-color: rgba(255, 255, 255, 0.03);
 }
 
+.post:active {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
 .post-content-container {
     flex: 1;
+    min-width: 0; /* prevent overflow */
 }
 
 .post-header {
@@ -556,46 +937,64 @@ button {
     align-items: center;
     gap: 4px;
     margin-bottom: 4px;
+    flex-wrap: wrap;
 }
 
 .post-display-name {
     font-weight: 700;
     color: var(--text-primary);
+    font-size: 0.95rem;
+    white-space: nowrap;
 }
 
 .post-username, .post-time {
     color: var(--text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
 }
 
 .post-text {
     font-size: 0.95rem;
-    line-height: 1.4;
-    margin-bottom: 12px;
+    line-height: 1.5;
+    margin-bottom: 10px;
     white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .post-actions {
     display: flex;
     justify-content: space-between;
-    max-width: 425px;
+    max-width: 100%;
     color: var(--text-secondary);
 }
 
 .post-action {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
+    gap: 4px;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: color 0.2s;
+    /* Large tap target */
+    padding: 4px;
 }
 
 .post-action i {
-    padding: 8px;
+    padding: 6px;
     border-radius: 50%;
-    font-size: 1.15rem;
+    font-size: 1rem;
     transition: background-color 0.2s;
+}
+
+@media (min-width: 600px) {
+    .post-action {
+        gap: 8px;
+        font-size: 0.85rem;
+    }
+    .post-action i {
+        padding: 8px;
+        font-size: 1.15rem;
+    }
 }
 
 .action-reply:hover { color: #1d9bf0; }
@@ -607,9 +1006,10 @@ button {
 .action-like:hover { color: #f91880; }
 .action-like:hover i { background-color: rgba(249, 24, 128, 0.1); }
 .action-like.liked { color: #f91880; }
-.action-like.liked i { font-weight: 700; } /* Filled heart if using phosphor */
 
-/* Loading Spinner */
+/* ============================================================
+   LOADING SPINNER
+   ============================================================ */
 .loading-spinner {
     display: flex;
     justify-content: center;
@@ -618,11 +1018,13 @@ button {
     font-size: 2rem;
 }
 
-/* Profile Specific */
+/* ============================================================
+   PROFILE PAGE
+   ============================================================ */
 .profile-header .back-nav {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
     padding: 0.5rem 1rem;
 }
 
@@ -630,6 +1032,12 @@ button {
     padding: 8px;
     border-radius: 50%;
     transition: background-color 0.2s;
+    /* Large tap target on mobile */
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .back-btn:hover {
@@ -637,9 +1045,15 @@ button {
 }
 
 .header-user-info h2 {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     margin: 0;
     padding: 0;
+}
+
+@media (min-width: 600px) {
+    .header-user-info h2 {
+        font-size: 1.25rem;
+    }
 }
 
 .header-user-info .post-count {
@@ -653,38 +1067,72 @@ button {
 }
 
 .cover-photo-placeholder {
-    height: 200px;
-    background-color: #333639;
+    height: 130px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+@media (min-width: 600px) {
+    .cover-photo-placeholder {
+        height: 200px;
+    }
 }
 
 .profile-details-section {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
+}
+
+@media (min-width: 600px) {
+    .profile-details-section {
+        padding: 1rem;
+    }
 }
 
 .profile-avatar-row {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-top: -15%;
-    margin-bottom: 1rem;
+    margin-top: -12%;
+    margin-bottom: 0.75rem;
+}
+
+@media (min-width: 600px) {
+    .profile-avatar-row {
+        margin-top: -15%;
+        margin-bottom: 1rem;
+    }
 }
 
 .profile-avatar-placeholder {
-    width: 133px;
-    height: 133px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     border: 4px solid var(--bg-primary);
     background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
+@media (min-width: 600px) {
+    .profile-avatar-placeholder {
+        width: 133px;
+        height: 133px;
+    }
+}
+
 .btn-secondary {
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    padding: 8px 16px;
+    padding: 7px 14px;
     border-radius: 9999px;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     transition: background-color 0.2s;
+    min-height: 36px;
+}
+
+@media (min-width: 600px) {
+    .btn-secondary {
+        padding: 8px 16px;
+        font-size: 0.95rem;
+    }
 }
 
 .btn-secondary:hover {
@@ -692,26 +1140,41 @@ button {
 }
 
 .profile-info-text .profile-display-name {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 800;
+}
+
+@media (min-width: 600px) {
+    .profile-info-text .profile-display-name {
+        font-size: 1.25rem;
+    }
 }
 
 .profile-info-text .profile-username {
     color: var(--text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .profile-bio {
-    margin-top: 12px;
-    font-size: 0.95rem;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+@media (min-width: 600px) {
+    .profile-bio {
+        margin-top: 12px;
+        font-size: 0.95rem;
+    }
 }
 
 .profile-meta {
     display: flex;
-    gap: 16px;
-    margin-top: 12px;
+    gap: 12px;
+    margin-top: 10px;
     color: var(--text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
 }
 
 .profile-meta span {
@@ -722,12 +1185,13 @@ button {
 
 .profile-stats {
     display: flex;
-    gap: 20px;
+    gap: 16px;
     margin-top: 12px;
+    flex-wrap: wrap;
 }
 
 .profile-stats a {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .profile-stats a:hover {
@@ -736,45 +1200,4 @@ button {
 
 .stat-label {
     color: var(--text-secondary);
-}
-
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-    .right-sidebar {
-        display: none;
-    }
-}
-
-@media (max-width: 700px) {
-    .sidebar {
-        width: 80px;
-        align-items: center;
-    }
-    .nav-item span {
-        display: none;
-    }
-    .nav-item {
-        padding-right: 12px;
-    }
-    .tweet-btn {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        padding: 0;
-        font-size: 0;
-    }
-    .tweet-btn::after {
-        content: '+';
-        font-size: 1.5rem;
-    }
-    .user-info, .user-miniprofile i {
-        display: none;
-    }
-    .auth-visual-section {
-        display: none;
-    }
-    .auth-form-section {
-        width: 100%;
-        min-width: unset;
-    }
 }

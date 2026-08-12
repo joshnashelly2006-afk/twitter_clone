@@ -2,21 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}Twitter Clone{% endblock %}</title>
     <meta name="description" content="A visually stunning Twitter Clone built with Flask.">
+    <meta name="theme-color" content="#0a0a0a">
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <!-- Phosphor Icons (for premium lightweight icons) -->
+    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
     <div id="app-container" class="app-container">
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar Navigation (desktop + tablet) -->
         {% block sidebar %}
         <aside class="sidebar">
             <div class="sidebar-logo">
@@ -44,7 +45,10 @@
                     <span>Profile</span>
                 </a>
             </nav>
-            <button class="btn-primary tweet-btn">Post</button>
+            <button class="btn-primary tweet-btn" id="desktop-post-trigger">
+                <i class="ph ph-pencil-simple tweet-btn-icon"></i>
+                <span class="tweet-btn-text">Post</span>
+            </button>
             <div class="user-miniprofile" id="current-user-miniprofile" style="display: none;">
                 <div class="avatar-placeholder"></div>
                 <div class="user-info">
@@ -86,12 +90,47 @@
             </div>
             <div class="suggestions-panel glass-panel">
                 <h3>Who to follow</h3>
-                <div id="suggestions-container">
-                    <!-- Dynamic suggestions go here -->
-                </div>
+                <div id="suggestions-container"></div>
             </div>
         </aside>
         {% endblock %}
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+        <a href="/feed" class="mobile-nav-item active" id="mobile-nav-home">
+            <i class="ph ph-house"></i>
+        </a>
+        <a href="#" class="mobile-nav-item" id="mobile-nav-explore">
+            <i class="ph ph-hash"></i>
+        </a>
+        <a href="#" class="mobile-nav-item" id="mobile-nav-notifications">
+            <i class="ph ph-bell"></i>
+        </a>
+        <a href="#" class="mobile-nav-item" id="mobile-nav-profile">
+            <i class="ph ph-user"></i>
+        </a>
+    </nav>
+
+    <!-- Mobile FAB Compose Button -->
+    <button class="mobile-compose-fab" id="mobile-compose-fab" aria-label="Compose post">
+        <i class="ph ph-pencil-simple"></i>
+    </button>
+
+    <!-- Mobile Compose Modal (bottom sheet) -->
+    <div class="mobile-compose-modal" id="mobile-compose-modal">
+        <div class="mobile-compose-sheet">
+            <div class="mobile-compose-header">
+                <button class="close-btn" id="mobile-compose-close" aria-label="Close">
+                    <i class="ph ph-x"></i>
+                </button>
+                <button class="btn-primary" id="mobile-submit-post-btn" style="padding: 8px 20px; border-radius: 9999px; font-weight: 700;">Post</button>
+            </div>
+            <div class="mobile-compose-body">
+                <div class="avatar-placeholder" style="width:40px;height:40px;flex-shrink:0;"></div>
+                <textarea id="mobile-compose-textarea" placeholder="What's happening?" rows="4"></textarea>
+            </div>
+        </div>
     </div>
 
     <!-- Main JavaScript -->

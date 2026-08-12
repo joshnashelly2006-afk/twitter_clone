@@ -1,0 +1,7 @@
+[2026-08-07 16:34:10,075] INFO in __init__ [c:\Users\acer\OneDrive\Desktop\twitter_clone\twitter_clone_backend\app\__init__.py:51]: Server initialized under 'development' environment.
+[2026-08-07 16:34:12,642] INFO in __init__ [c:\Users\acer\OneDrive\Desktop\twitter_clone\twitter_clone_backend\app\__init__.py:51]: Server initialized under 'development' environment.
+[2026-08-07 16:34:19,612] INFO in __init__ [c:\Users\acer\OneDrive\Desktop\twitter_clone\twitter_clone_backend\app\__init__.py:110]: [cbcb29c8-6301-4be4-ab1e-96677e72b609] 127.0.0.1 - GET / 404 (0.0012s)
+[2026-08-07 16:34:19,817] INFO in __init__ [c:\Users\acer\OneDrive\Desktop\twitter_clone\twitter_clone_backend\app\__init__.py:110]: [4445300b-e976-4c21-af95-46053cdfeb13] 127.0.0.1 - GET /favicon.ico 404 (0.0010s)
+[2026-08-07 16:34:38,331] INFO in __init__ [c:\Users\acer\OneDrive\Desktop\twitter_clone\twitter_clone_backend\app\__init__.py:110]: [6e84625e-03e7-4f43-8f5c-bdd1cb5a512f] 127.0.0.1 - GET / 404 (0.0001s)
+[2026-08-07 16:34:38,502] INFO in __init__ [c:\Users\acer\OneDrive\Desktop\twitter_clone\twitter_clone_backend\app\__init__.py:110]: [b7b9eb89-b670-4d0a-90be-b1e8b3100e07] 127.0.0.1 - GET /favicon.ico 404 (0.0001s)
+[2026-08-07 16:34:47,721] INFO in __init__ [c:\Users\acer\OneDrive\Desktop\twitter_clone\twitter_clone_backend\app\__init__.py:110]: [e224ee45-74b3-4a54-b4dc-94db89dcef7b] 127.0.0.1 - GET / 404 (0.0002s)

@@ -316,49 +316,83 @@ function createPostElement(post) {
 }
 
 function setupComposePost() {
+    // --- Desktop compose (sidebar trigger or inline box) ---
     const btn = document.getElementById('submit-post-btn');
     const textarea = document.getElementById('compose-textarea');
-    
-    if(!btn || !textarea) return;
 
-    btn.addEventListener('click', async () => {
-        const content = textarea.value.trim();
-        if(!content) return;
-        
-        btn.disabled = true;
-        btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i>';
-        
-        try {
-            const res = await apiFetch('/posts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content })
-            });
-            
-            if(res.ok) {
-                const data = await res.json();
-                textarea.value = '';
-                // Prepend new post
-                const container = document.getElementById('feed-container');
-                if (container) {
-                    const newPost = data.data || data;
-                    const postEl = createPostElement(newPost);
-                    // Remove "No posts yet" message if it's there
-                    if(container.children.length === 1 && !container.children[0].classList.contains('post')) {
-                        container.innerHTML = '';
-                    }
-                    container.prepend(postEl);
+    if (btn && textarea) {
+        btn.addEventListener('click', () => submitPost(textarea, btn));
+    }
+
+    // --- Mobile compose (FAB + bottom sheet modal) ---
+    const fab = document.getElementById('mobile-compose-fab');
+    const modal = document.getElementById('mobile-compose-modal');
+    const closeBtn = document.getElementById('mobile-compose-close');
+    const mobileTextarea = document.getElementById('mobile-compose-textarea');
+    const mobileSubmitBtn = document.getElementById('mobile-submit-post-btn');
+
+    if (fab && modal) {
+        fab.addEventListener('click', () => {
+            modal.classList.add('open');
+            setTimeout(() => mobileTextarea && mobileTextarea.focus(), 100);
+        });
+
+        closeBtn && closeBtn.addEventListener('click', () => {
+            modal.classList.remove('open');
+        });
+
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('open');
+        });
+
+        mobileSubmitBtn && mobileSubmitBtn.addEventListener('click', async () => {
+            if (!mobileTextarea) return;
+            await submitPost(mobileTextarea, mobileSubmitBtn);
+            modal.classList.remove('open');
+        });
+    }
+}
+
+async function submitPost(textarea, btn) {
+    const content = textarea.value.trim();
+    if (!content) return;
+
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i>';
+
+    try {
+        const res = await apiFetch('/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            textarea.value = '';
+            // Prepend new post
+            const container = document.getElementById('feed-container');
+            if (container) {
+                const newPost = data.data || data;
+                const postEl = createPostElement(newPost);
+                // Remove "No posts yet" message if it's there
+                if (container.children.length === 1 && !container.children[0].classList.contains('post')) {
+                    container.innerHTML = '';
                 }
-            } else {
-                alert("Failed to post tweet.");
+                container.prepend(postEl);
             }
-        } catch(e) {
-            alert("Error posting.");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Post';
+        } else {
+            alert('Failed to post tweet.');
         }
-    });
+    } catch (e) {
+        alert('Error posting.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+
 }
 
 // --- Profile ---
