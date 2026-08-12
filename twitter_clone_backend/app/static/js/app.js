@@ -104,13 +104,11 @@ function formatTime(isoString) {
 // --- App Initialization ---
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Check login page
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         setupAuthForms();
     }
 
-    // Protected pages setup
     const token = getToken();
     const path = window.location.pathname;
 
@@ -125,6 +123,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = '/';
                 } else {
                     setupUserInterface();
+                    setupNavigation();
+                    setupSearch();
+                    loadRightSidebarData();
+
                     if (path === '/feed') {
                         loadFeed();
                         setupComposePost();
@@ -135,6 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }).catch(() => {
                 setupUserInterface();
+                setupNavigation();
+                setupSearch();
+                loadRightSidebarData();
+
                 if (path === '/feed') {
                     loadFeed();
                     setupComposePost();
@@ -146,6 +152,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+// --- Navigation & Views ---
+
+function setupNavigation() {
+    const navExplore = document.getElementById('nav-explore');
+    const navNotifications = document.getElementById('nav-notifications');
+    const navHome = document.getElementById('nav-home');
+    const mobileNavExplore = document.getElementById('mobile-nav-explore');
+    const mobileNavNotifs = document.getElementById('mobile-nav-notifications');
+
+    if (navExplore) {
+        navExplore.addEventListener('click', (e) => {
+            e.preventDefault();
+            setActiveNav(navExplore);
+            loadExplore();
+        });
+    }
+
+    if (mobileNavExplore) {
+        mobileNavExplore.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadExplore();
+        });
+    }
+
+    if (navNotifications) {
+        navNotifications.addEventListener('click', (e) => {
+            e.preventDefault();
+            setActiveNav(navNotifications);
+            loadNotifications();
+        });
+    }
+
+    if (mobileNavNotifs) {
+        mobileNavNotifs.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadNotifications();
+        });
+    }
+}
+
+function setActiveNav(targetEl) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    if (targetEl) targetEl.classList.add('active');
+}
+
+// --- Auth Forms ---
 
 function setupAuthForms() {
     const loginForm = document.getElementById('login-form');
@@ -214,7 +267,6 @@ function setupAuthForms() {
 
                 if (res.ok) {
                     showToast('Account created! Logging in...', 'success');
-                    // Auto login after registration
                     const loginRes = await fetch(`${API_BASE}/auth/login`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -279,7 +331,6 @@ function setupUserInterface() {
                     });
                 }
                 
-                // Set profile nav link
                 const profileLink = document.getElementById('nav-profile');
                 const mobileProfileLink = document.getElementById('mobile-nav-profile');
                 if (profileLink) profileLink.href = `/${user.username}`;
@@ -381,7 +432,6 @@ function createPostElement(post) {
         </div>
     `;
     
-    // Action Listeners
     const likeBtn = div.querySelector('.action-like');
     if (likeBtn) {
         likeBtn.addEventListener('click', async (e) => {
@@ -390,7 +440,6 @@ function createPostElement(post) {
             const isCurrentlyLiked = likeBtn.classList.contains('liked');
             const method = isCurrentlyLiked ? 'DELETE' : 'POST';
             
-            // Optimistic UI update
             likeBtn.classList.toggle('liked');
             const icon = likeBtn.querySelector('i');
             icon.className = !isCurrentlyLiked ? 'ph-fill ph-heart' : 'ph ph-heart';
@@ -402,7 +451,6 @@ function createPostElement(post) {
             try {
                 const res = await apiFetch(`/posts/${targetPostId}/like`, { method });
                 if (!res.ok) {
-                    // Revert if API fails
                     likeBtn.classList.toggle('liked');
                     icon.className = isCurrentlyLiked ? 'ph-fill ph-heart' : 'ph ph-heart';
                     span.textContent = likes > 0 ? likes : '';
@@ -445,7 +493,6 @@ function setupComposePost() {
         desktopBtn.addEventListener('click', () => submitPost(desktopTextarea, desktopBtn));
     }
 
-    // Mobile FAB + Bottom Sheet Modal
     const fab = document.getElementById('mobile-compose-fab');
     const modal = document.getElementById('mobile-compose-modal');
     const closeBtn = document.getElementById('mobile-compose-close');
@@ -536,6 +583,261 @@ async function submitPost(textarea, btn) {
     }
 }
 
+// --- Follow & Right Sidebar Data ---
+
+async function toggleFollow(userId, btnElement, username = '') {
+    if (!userId || !btnElement) return;
+
+    const isFollowing = btnElement.classList.contains('following') || btnElement.textContent.trim() === 'Following';
+    const method = isFollowing ? 'DELETE' : 'POST';
+
+    // Optimistic state
+    btnElement.textContent = isFollowing ? 'Follow' : 'Following';
+    btnElement.classList.toggle('following');
+
+    try {
+        const res = await apiFetch(`/users/${userId}/follow`, { method });
+        if (res.ok) {
+            const label = username ? `@${username}` : 'user';
+            showToast(isFollowing ? `Unfollowed ${label}` : `Following ${label}! ✨`, 'info');
+        } else {
+            // Revert
+            btnElement.textContent = isFollowing ? 'Following' : 'Follow';
+            btnElement.classList.toggle('following');
+            showToast('Follow request failed.', 'error');
+        }
+    } catch (e) {
+        btnElement.textContent = isFollowing ? 'Following' : 'Follow';
+        btnElement.classList.toggle('following');
+        showToast('Error sending follow request.', 'error');
+    }
+}
+
+async function loadRightSidebarData() {
+    const suggestionsContainer = document.getElementById('suggestions-container');
+    if (suggestionsContainer) {
+        try {
+            const res = await apiFetch('/trending/users?limit=5');
+            if (res.ok) {
+                const data = await res.json();
+                const users = data.data || [];
+                const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+                const filtered = users.filter(u => u.username !== currentUser.username);
+                if (filtered.length > 0) {
+                    suggestionsContainer.innerHTML = '';
+                    filtered.forEach(u => {
+                        const card = document.createElement('div');
+                        card.className = 'suggestion-user-card';
+                        card.innerHTML = `
+                            <div class="suggestion-user-info" onclick="window.location.href='/${u.username}'" style="cursor:pointer;">
+                                <div class="avatar-placeholder" style="width:36px;height:36px;"></div>
+                                <div>
+                                    <div class="display-name" style="font-size:0.9rem;">${escapeHTML(u.username)}</div>
+                                    <div class="handle" style="font-size:0.8rem;">@${escapeHTML(u.username)}</div>
+                                </div>
+                            </div>
+                            <button class="follow-btn-sm" data-id="${u.id}" data-username="${u.username}">Follow</button>
+                        `;
+                        const fBtn = card.querySelector('.follow-btn-sm');
+                        fBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            toggleFollow(u.id, fBtn, u.username);
+                        });
+                        suggestionsContainer.appendChild(card);
+                    });
+                }
+            }
+        } catch (e) {}
+    }
+}
+
+// --- Live Search ---
+
+function setupSearch() {
+    const input = document.getElementById('global-search-input');
+    if (!input) return;
+
+    let debounceTimeout = null;
+
+    input.addEventListener('input', () => {
+        clearTimeout(debounceTimeout);
+        const query = input.value.trim();
+        if (!query) return;
+
+        debounceTimeout = setTimeout(() => {
+            performGlobalSearch(query);
+        }, 300);
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const query = input.value.trim();
+            if (query) performGlobalSearch(query);
+        }
+    });
+}
+
+async function performGlobalSearch(query) {
+    const feedContainer = document.getElementById('feed-container');
+    if (feedContainer) {
+        renderSkeletons(feedContainer, 2);
+    }
+
+    try {
+        const res = await apiFetch(`/search?q=${encodeURIComponent(query)}`);
+        if (res.ok) {
+            const data = await res.json();
+            const results = data.data || {};
+            
+            if (feedContainer) {
+                feedContainer.innerHTML = `
+                    <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color);">
+                        <h3 style="font-size: 1.1rem;">Search results for "${escapeHTML(query)}"</h3>
+                    </div>
+                `;
+
+                // Render User Results
+                if (results.users && results.users.length > 0) {
+                    results.users.forEach(u => {
+                        const uEl = document.createElement('div');
+                        uEl.className = 'suggestion-user-card';
+                        uEl.style.padding = '1rem 1.25rem';
+                        uEl.style.borderBottom = '1px solid var(--border-color)';
+                        uEl.innerHTML = `
+                            <div class="suggestion-user-info" onclick="window.location.href='/${u.username}'" style="cursor:pointer;">
+                                <div class="avatar-placeholder" style="width:44px;height:44px;"></div>
+                                <div>
+                                    <div class="display-name" style="font-size:0.95rem; font-weight:700;">${escapeHTML(u.username)}</div>
+                                    <div class="handle" style="font-size:0.85rem;">@${escapeHTML(u.username)}</div>
+                                    <div style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">${escapeHTML(u.bio || '')}</div>
+                                </div>
+                            </div>
+                            <button class="follow-btn-sm" data-id="${u.id}" data-username="${u.username}">Follow</button>
+                        `;
+                        const fBtn = uEl.querySelector('.follow-btn-sm');
+                        fBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            toggleFollow(u.id, fBtn, u.username);
+                        });
+                        feedContainer.appendChild(uEl);
+                    });
+                }
+
+                // Render Post Results
+                if (results.posts && results.posts.length > 0) {
+                    results.posts.forEach(post => {
+                        feedContainer.appendChild(createPostElement(post));
+                    });
+                }
+
+                if ((!results.users || results.users.length === 0) && (!results.posts || results.posts.length === 0)) {
+                    feedContainer.innerHTML += `
+                        <div style="padding: 3rem 1.5rem; text-align: center; color: var(--text-muted);">
+                            No results found for "${escapeHTML(query)}".
+                        </div>
+                    `;
+                }
+            }
+            showToast(`Found search results for "${query}"`, 'info');
+        }
+    } catch (e) {
+        showToast('Search failed.', 'error');
+    }
+}
+
+// --- Notifications View ---
+
+async function loadNotifications() {
+    const container = document.getElementById('feed-container');
+    if (!container) return;
+
+    renderSkeletons(container, 3);
+
+    try {
+        const res = await apiFetch('/notifications');
+        if (res.ok) {
+            const data = await res.json();
+            const notifs = (data.data ? data.data.notifications : null) || data.notifications || [];
+            
+            container.innerHTML = `
+                <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.15rem; font-weight: 800;">Notifications</h3>
+                </div>
+            `;
+
+            if (notifs && notifs.length > 0) {
+                notifs.forEach(n => {
+                    const el = document.createElement('div');
+                    el.className = 'post';
+                    const sender = n.sender ? n.sender.username : 'Someone';
+                    let icon = 'ph-bell';
+                    let text = 'interacted with your profile';
+                    if (n.type === 'LIKE') { icon = 'ph-heart'; text = 'liked your post'; }
+                    if (n.type === 'FOLLOW') { icon = 'ph-user-plus'; text = 'started following you'; }
+                    if (n.type === 'COMMENT') { icon = 'ph-chat-circle'; text = 'commented on your post'; }
+                    if (n.type === 'MENTION') { icon = 'ph-at'; text = 'mentioned you in a post'; }
+
+                    el.innerHTML = `
+                        <div style="font-size: 1.5rem; color: var(--brand-primary); padding-top:4px;">
+                            <i class="ph ${icon}"></i>
+                        </div>
+                        <div class="post-content-container">
+                            <div class="post-header">
+                                <strong class="post-display-name">${escapeHTML(sender)}</strong>
+                                <span class="post-time">· ${formatTime(n.created_at)}</span>
+                            </div>
+                            <div class="post-text">${escapeHTML(text)}</div>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
+            } else {
+                container.innerHTML += `
+                    <div style="padding: 3rem 1.5rem; text-align: center; color: var(--text-muted);">
+                        <i class="ph ph-bell-slash" style="font-size: 2.5rem; color: var(--brand-primary); margin-bottom: 0.5rem;"></i>
+                        <h3 style="color: var(--text-primary);">No notifications yet</h3>
+                        <p style="font-size: 0.9rem;">When people like, comment, or follow you, you'll see it here.</p>
+                    </div>
+                `;
+            }
+        }
+    } catch (e) {
+        container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--error-color);">Failed to load notifications.</div>';
+    }
+}
+
+// --- Explore View ---
+
+async function loadExplore() {
+    const container = document.getElementById('feed-container');
+    if (!container) return;
+
+    renderSkeletons(container, 3);
+
+    try {
+        const res = await apiFetch('/trending/posts');
+        if (res.ok) {
+            const data = await res.json();
+            const posts = data.data || [];
+            
+            container.innerHTML = `
+                <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color);">
+                    <h3 style="font-size: 1.15rem; font-weight: 800;">Explore & Trending</h3>
+                </div>
+            `;
+
+            if (posts && posts.length > 0) {
+                posts.forEach(post => container.appendChild(createPostElement(post)));
+            } else {
+                container.innerHTML += '<div style="padding: 3rem 1.5rem; text-align: center; color: var(--text-muted);">No trending posts right now.</div>';
+            }
+        }
+    } catch (e) {
+        container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--error-color);">Failed to load explore feed.</div>';
+    }
+}
+
 // --- Profile ---
 
 async function loadProfile() {
@@ -568,43 +870,24 @@ async function loadProfile() {
             if (followingCount) followingCount.textContent = user.following_count || 0;
             if (followersCount) followersCount.textContent = user.followers_count || 0;
             
-            // Follow button setup
-            const currentUser = JSON.parse(localStorage.getItem('user'));
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
             const actionsContainer = document.getElementById('profile-actions-container');
             if (actionsContainer) {
                 if (currentUser && currentUser.username === user.username) {
                     actionsContainer.innerHTML = '<button class="btn-secondary">Edit profile</button>';
                 } else {
                     const isFollowing = user.is_followed_by_current_user;
-                    actionsContainer.innerHTML = `<button class="btn-secondary" id="follow-btn" data-userid="${user.id}">${isFollowing ? 'Following' : 'Follow'}</button>`;
+                    actionsContainer.innerHTML = `<button class="btn-secondary ${isFollowing ? 'following' : ''}" id="follow-btn" data-userid="${user.id}">${isFollowing ? 'Following' : 'Follow'}</button>`;
                     
                     const followBtn = document.getElementById('follow-btn');
                     if (followBtn) {
-                        followBtn.addEventListener('click', async () => {
-                            const targetUserId = followBtn.getAttribute('data-userid');
-                            const isFollowingNow = followBtn.textContent === 'Following';
-                            const method = isFollowingNow ? 'DELETE' : 'POST';
-                            
-                            try {
-                                const followRes = await apiFetch(`/follows/${targetUserId}`, { method });
-                                if (followRes.ok) {
-                                    followBtn.textContent = isFollowingNow ? 'Follow' : 'Following';
-                                    showToast(isFollowingNow ? `Unfollowed @${user.username}` : `Following @${user.username}!`, 'info');
-                                    const countEl = document.getElementById('profile-followers-count');
-                                    if (countEl) {
-                                        let count = parseInt(countEl.textContent || '0');
-                                        countEl.textContent = isFollowingNow ? Math.max(0, count - 1) : count + 1;
-                                    }
-                                }
-                            } catch (err) {
-                                showToast('Follow request failed.', 'error');
-                            }
+                        followBtn.addEventListener('click', () => {
+                            toggleFollow(user.id, followBtn, user.username);
                         });
                     }
                 }
             }
             
-            // Load user's posts
             loadUserPosts(user.id);
         } else {
             const profileHero = document.querySelector('.profile-hero');
