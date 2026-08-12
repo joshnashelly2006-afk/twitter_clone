@@ -19,11 +19,14 @@
         <textarea id="compose-textarea" placeholder="What is happening?!"></textarea>
         <div class="compose-actions">
             <div class="compose-tools">
-                <i class="ph ph-image"></i>
-                <i class="ph ph-gif"></i>
-                <i class="ph ph-smiley"></i>
+                <i class="ph ph-image" title="Media attachment"></i>
+                <i class="ph ph-gif" title="GIF"></i>
+                <i class="ph ph-smiley" title="Emoji"></i>
             </div>
-            <button class="btn-primary" id="submit-post-btn">Post</button>
+            <div class="compose-right-controls">
+                <span class="char-counter" id="desktop-char-counter">0/280</span>
+                <button class="btn-primary" id="submit-post-btn">Post</button>
+            </div>
         </div>
     </div>
 </div>
@@ -31,9 +34,21 @@
 <div class="divider"></div>
 
 <div id="feed-container" class="feed-container">
-    <!-- Posts will be dynamically inserted here via JS -->
-    <div class="loading-spinner">
-        <i class="ph ph-spinner ph-spin"></i>
+    <!-- Posts & Skeleton Loader injected here -->
+    <div class="skeleton-card">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-content">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line full"></div>
+            <div class="skeleton-line medium"></div>
+        </div>
+    </div>
+    <div class="skeleton-card">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-content">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line full"></div>
+        </div>
     </div>
 </div>
 {% endblock %}

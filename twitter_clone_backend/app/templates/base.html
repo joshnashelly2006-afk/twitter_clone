@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}Twitter Clone{% endblock %}</title>
     <meta name="description" content="A visually stunning Twitter Clone built with Flask.">
-    <meta name="theme-color" content="#0a0a0a">
+    <meta name="theme-color" content="#07090e">
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,12 +16,16 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
+    <div id="toast-container" class="toast-container"></div>
+
     <div id="app-container" class="app-container">
         <!-- Sidebar Navigation (desktop + tablet) -->
         {% block sidebar %}
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <i class="ph-fill ph-twitter-logo brand-icon"></i>
+                <a href="/feed" aria-label="Home">
+                    <i class="ph-fill ph-twitter-logo brand-icon"></i>
+                </a>
             </div>
             <nav class="nav-menu">
                 <a href="/feed" class="nav-item active" id="nav-home">
@@ -57,7 +61,7 @@
                 </div>
                 <i class="ph ph-dots-three"></i>
                 <div class="logout-menu hidden" id="logout-menu">
-                    <button id="logout-btn">Log out</button>
+                    <button id="logout-btn"><i class="ph ph-sign-out"></i> Log out</button>
                 </div>
             </div>
         </aside>
@@ -73,24 +77,40 @@
         <aside class="right-sidebar">
             <div class="search-bar">
                 <i class="ph ph-magnifying-glass"></i>
-                <input type="text" placeholder="Search Twitter Clone">
+                <input type="text" id="global-search-input" placeholder="Search Twitter Clone">
             </div>
             <div class="trends-panel glass-panel">
                 <h3>What's happening</h3>
                 <div class="trend-item">
                     <span class="trend-category">Trending in Tech</span>
-                    <strong class="trend-title">#Flask</strong>
-                    <span class="trend-tweets">12.5K Posts</span>
+                    <strong class="trend-title">#FlaskFramework</strong>
+                    <span class="trend-tweets">18.4K Posts</span>
                 </div>
                 <div class="trend-item">
-                    <span class="trend-category">Programming</span>
-                    <strong class="trend-title">Python</strong>
-                    <span class="trend-tweets">54.2K Posts</span>
+                    <span class="trend-category">Software Engineering</span>
+                    <strong class="trend-title">#Python3</strong>
+                    <span class="trend-tweets">62.1K Posts</span>
+                </div>
+                <div class="trend-item">
+                    <span class="trend-category">Web Architecture</span>
+                    <strong class="trend-title">REST APIs</strong>
+                    <span class="trend-tweets">41.8K Posts</span>
                 </div>
             </div>
             <div class="suggestions-panel glass-panel">
                 <h3>Who to follow</h3>
-                <div id="suggestions-container"></div>
+                <div id="suggestions-container">
+                    <div class="suggestion-user-card">
+                        <div class="suggestion-user-info">
+                            <div class="avatar-placeholder" style="width:36px;height:36px;"></div>
+                            <div>
+                                <div class="display-name" style="font-size:0.9rem;">Flask Dev</div>
+                                <div class="handle" style="font-size:0.8rem;">@flask_official</div>
+                            </div>
+                        </div>
+                        <button class="follow-btn-sm">Follow</button>
+                    </div>
+                </div>
             </div>
         </aside>
         {% endblock %}
@@ -124,7 +144,10 @@
                 <button class="close-btn" id="mobile-compose-close" aria-label="Close">
                     <i class="ph ph-x"></i>
                 </button>
-                <button class="btn-primary" id="mobile-submit-post-btn" style="padding: 8px 20px; border-radius: 9999px; font-weight: 700;">Post</button>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span class="char-counter" id="mobile-char-counter">0/280</span>
+                    <button class="btn-primary" id="mobile-submit-post-btn" style="padding: 8px 20px; border-radius: 9999px; font-weight: 700;">Post</button>
+                </div>
             </div>
             <div class="mobile-compose-body">
                 <div class="avatar-placeholder" style="width:40px;height:40px;flex-shrink:0;"></div>
