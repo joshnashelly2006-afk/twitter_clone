@@ -10,7 +10,7 @@ from app.likes.services import (
 likes_bp = Blueprint('likes', __name__)
 
 
-@likes_bp.route('/posts/<uuid:post_id>/like', methods=['POST'])
+@likes_bp.route('/posts/<string:post_id>/like', methods=['POST'])
 @jwt_required()
 def like_a_post(post_id):
     """
@@ -46,7 +46,7 @@ def like_a_post(post_id):
     }), 200
 
 
-@likes_bp.route('/posts/<uuid:post_id>/like', methods=['DELETE'])
+@likes_bp.route('/posts/<string:post_id>/like', methods=['DELETE'])
 @jwt_required()
 def unlike_a_post(post_id):
     """
@@ -80,7 +80,7 @@ def unlike_a_post(post_id):
     }), 200
 
 
-@likes_bp.route('/posts/<uuid:post_id>/likes', methods=['GET'])
+@likes_bp.route('/posts/<string:post_id>/likes', methods=['GET'])
 def get_post_likers(post_id):
     """
     List Users Who Liked Post Endpoint
@@ -120,7 +120,7 @@ def get_post_likers(post_id):
     }), 200
 
 
-@likes_bp.route('/posts/<uuid:post_id>/liked', methods=['GET'])
+@likes_bp.route('/posts/<string:post_id>/liked', methods=['GET'])
 @jwt_required()
 def get_user_liked_status(post_id):
     """

@@ -9,7 +9,7 @@ from app.bookmarks.services import (
 bookmarks_bp = Blueprint('bookmarks', __name__)
 
 
-@bookmarks_bp.route('/posts/<uuid:post_id>/bookmark', methods=['POST'])
+@bookmarks_bp.route('/posts/<string:post_id>/bookmark', methods=['POST'])
 @jwt_required()
 def add_bookmark(post_id):
     """
@@ -41,7 +41,7 @@ def add_bookmark(post_id):
     }), 200
 
 
-@bookmarks_bp.route('/posts/<uuid:post_id>/bookmark', methods=['DELETE'])
+@bookmarks_bp.route('/posts/<string:post_id>/bookmark', methods=['DELETE'])
 @jwt_required()
 def remove_bookmark(post_id):
     """

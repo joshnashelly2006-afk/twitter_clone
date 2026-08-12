@@ -1,5 +1,4 @@
-from sqlalchemy import Column, ForeignKey, UniqueConstraint, CheckConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, ForeignKey, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import relationship
 from app.models.base import BaseModel
 
@@ -10,13 +9,13 @@ class Block(BaseModel):
     __tablename__ = 'blocks'
 
     blocker_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
         index=True
     )
     blocked_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
         index=True

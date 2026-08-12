@@ -1,5 +1,4 @@
 from sqlalchemy import Column, String, Boolean, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.models.base import BaseModel
 
@@ -10,7 +9,7 @@ class UserSettings(BaseModel):
     __tablename__ = 'user_settings'
 
     user_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('users.id', ondelete='CASCADE'),
         unique=True,
         nullable=False,

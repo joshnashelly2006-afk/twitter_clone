@@ -103,6 +103,29 @@ def get_public_user_profile(target_user_id):
     }
 
 
+def get_public_user_profile_by_username(username):
+    """
+    Fetch public profile information by username.
+    """
+    user = User.query.filter_by(username=username).first()
+    if not user or not user.is_active:
+        raise NotFoundError('User profile not found.')
+
+    posts_count = Post.query.filter_by(user_id=user.id).count()
+    follower_count = Follow.query.filter_by(following_id=user.id).count()
+    following_count = Follow.query.filter_by(follower_id=user.id).count()
+
+    return {
+        'id': str(user.id),
+        'username': user.username,
+        'bio': user.bio,
+        'profile_picture': user.profile_picture,
+        'posts_count': posts_count,
+        'followers_count': follower_count,
+        'following_count': following_count
+    }
+
+
 def search_users(query_string, page=1, per_page=10):
     """
     Search users by username (partial, case-insensitive) with pagination.

@@ -1,5 +1,4 @@
 from sqlalchemy import Column, String, Integer, ForeignKey, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.models.base import BaseModel
 
@@ -22,13 +21,13 @@ class PostHashtag(BaseModel):
     __tablename__ = 'post_hashtags'
 
     post_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('posts.id', ondelete='CASCADE'),
         nullable=False,
         index=True
     )
     hashtag_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('hashtags.id', ondelete='CASCADE'),
         nullable=False,
         index=True

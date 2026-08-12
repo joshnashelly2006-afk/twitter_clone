@@ -1,5 +1,4 @@
-from sqlalchemy import Column, String, Text, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.models.base import BaseModel
 
@@ -10,12 +9,12 @@ class Post(BaseModel):
     __tablename__ = 'posts'
 
     user_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
         index=True
     )
-    content = Column(Text, nullable=False)
+    content = Column(String(10000), nullable=False)
     media_path = Column(String(255), nullable=True)
     media_type = Column(String(20), nullable=True)  # 'image' or 'video'
 

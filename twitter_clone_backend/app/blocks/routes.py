@@ -9,7 +9,7 @@ from app.blocks.services import (
 blocks_bp = Blueprint('blocks', __name__)
 
 
-@blocks_bp.route('/users/<uuid:user_id>/block', methods=['POST'])
+@blocks_bp.route('/users/<string:user_id>/block', methods=['POST'])
 @jwt_required()
 def block_a_user(user_id):
     """
@@ -39,7 +39,7 @@ def block_a_user(user_id):
     }), 200
 
 
-@blocks_bp.route('/users/<uuid:user_id>/block', methods=['DELETE'])
+@blocks_bp.route('/users/<string:user_id>/block', methods=['DELETE'])
 @jwt_required()
 def unblock_a_user(user_id):
     """

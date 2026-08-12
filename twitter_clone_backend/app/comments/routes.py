@@ -11,7 +11,7 @@ from app.comments.services import (
 comments_bp = Blueprint('comments', __name__)
 
 
-@comments_bp.route('/posts/<uuid:post_id>/comments', methods=['POST'])
+@comments_bp.route('/posts/<string:post_id>/comments', methods=['POST'])
 @jwt_required()
 def create_comment(post_id):
     """
@@ -55,7 +55,7 @@ def create_comment(post_id):
     }), 201
 
 
-@comments_bp.route('/posts/<uuid:post_id>/comments', methods=['GET'])
+@comments_bp.route('/posts/<string:post_id>/comments', methods=['GET'])
 def get_comments_for_post(post_id):
     """
     Get Post Comments Endpoint

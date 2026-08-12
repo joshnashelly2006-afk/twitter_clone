@@ -11,7 +11,7 @@ from app.follows.services import (
 follows_bp = Blueprint('follows', __name__)
 
 
-@follows_bp.route('/users/<uuid:user_id>/follow', methods=['POST'])
+@follows_bp.route('/users/<string:user_id>/follow', methods=['POST'])
 @jwt_required()
 def follow_a_user(user_id):
     """
@@ -44,7 +44,7 @@ def follow_a_user(user_id):
     }), 200
 
 
-@follows_bp.route('/users/<uuid:user_id>/follow', methods=['DELETE'])
+@follows_bp.route('/users/<string:user_id>/follow', methods=['DELETE'])
 @jwt_required()
 def unfollow_a_user(user_id):
     """
@@ -77,7 +77,7 @@ def unfollow_a_user(user_id):
     }), 200
 
 
-@follows_bp.route('/users/<uuid:user_id>/followers', methods=['GET'])
+@follows_bp.route('/users/<string:user_id>/followers', methods=['GET'])
 def get_followers_list(user_id):
     """
     Get User Followers Endpoint
@@ -117,7 +117,7 @@ def get_followers_list(user_id):
     }), 200
 
 
-@follows_bp.route('/users/<uuid:user_id>/following', methods=['GET'])
+@follows_bp.route('/users/<string:user_id>/following', methods=['GET'])
 def get_following_list(user_id):
     """
     Get User Following List Endpoint
@@ -157,7 +157,7 @@ def get_following_list(user_id):
     }), 200
 
 
-@follows_bp.route('/users/<uuid:user_id>/follow-status', methods=['GET'])
+@follows_bp.route('/users/<string:user_id>/follow-status', methods=['GET'])
 @jwt_required()
 def get_mutual_follow_status(user_id):
     """

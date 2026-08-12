@@ -4,6 +4,16 @@ from datetime import timedelta
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
+def _fix_database_url(url):
+    """
+    Render provides DATABASE_URL as 'postgres://...' but SQLAlchemy
+    requires 'postgresql://...'. This fixes that automatically.
+    """
+    if url and url.startswith('postgres://'):
+        return url.replace('postgres://', 'postgresql://', 1)
+    return url
+
+
 class Config:
     """Base Configuration Class."""
 
@@ -35,7 +45,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DATABASE_URL',
-        'postgresql://postgres:postgres@localhost:5432/twitter_clone_db'
+        'sqlite:///twitter_clone.db'
     )
 
 
@@ -55,7 +65,7 @@ class ProductionConfig(Config):
     """Production Environment Configuration."""
 
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = _fix_database_url(os.getenv('DATABASE_URL'))
 
 
 config_by_name = {

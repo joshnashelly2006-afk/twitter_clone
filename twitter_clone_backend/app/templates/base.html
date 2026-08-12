@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Twitter Clone{% endblock %}</title>
+    <meta name="description" content="A visually stunning Twitter Clone built with Flask.">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- Phosphor Icons (for premium lightweight icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <div id="app-container" class="app-container">
+        <!-- Sidebar Navigation -->
+        {% block sidebar %}
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="ph-fill ph-twitter-logo brand-icon"></i>
+            </div>
+            <nav class="nav-menu">
+                <a href="/feed" class="nav-item active" id="nav-home">
+                    <i class="ph ph-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="nav-item" id="nav-explore">
+                    <i class="ph ph-hash"></i>
+                    <span>Explore</span>
+                </a>
+                <a href="#" class="nav-item" id="nav-notifications">
+                    <i class="ph ph-bell"></i>
+                    <span>Notifications</span>
+                </a>
+                <a href="#" class="nav-item" id="nav-messages">
+                    <i class="ph ph-envelope-simple"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="#" class="nav-item" id="nav-profile">
+                    <i class="ph ph-user"></i>
+                    <span>Profile</span>
+                </a>
+            </nav>
+            <button class="btn-primary tweet-btn">Post</button>
+            <div class="user-miniprofile" id="current-user-miniprofile" style="display: none;">
+                <div class="avatar-placeholder"></div>
+                <div class="user-info">
+                    <strong class="display-name" id="current-user-display-name">User</strong>
+                    <span class="handle" id="current-user-username">@user</span>
+                </div>
+                <i class="ph ph-dots-three"></i>
+                <div class="logout-menu hidden" id="logout-menu">
+                    <button id="logout-btn">Log out</button>
+                </div>
+            </div>
+        </aside>
+        {% endblock %}
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Right Sidebar (Trends/Suggestions) -->
+        {% block right_sidebar %}
+        <aside class="right-sidebar">
+            <div class="search-bar">
+                <i class="ph ph-magnifying-glass"></i>
+                <input type="text" placeholder="Search Twitter Clone">
+            </div>
+            <div class="trends-panel glass-panel">
+                <h3>What's happening</h3>
+                <div class="trend-item">
+                    <span class="trend-category">Trending in Tech</span>
+                    <strong class="trend-title">#Flask</strong>
+                    <span class="trend-tweets">12.5K Posts</span>
+                </div>
+                <div class="trend-item">
+                    <span class="trend-category">Programming</span>
+                    <strong class="trend-title">Python</strong>
+                    <span class="trend-tweets">54.2K Posts</span>
+                </div>
+            </div>
+            <div class="suggestions-panel glass-panel">
+                <h3>Who to follow</h3>
+                <div id="suggestions-container">
+                    <!-- Dynamic suggestions go here -->
+                </div>
+            </div>
+        </aside>
+        {% endblock %}
+    </div>
+
+    <!-- Main JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

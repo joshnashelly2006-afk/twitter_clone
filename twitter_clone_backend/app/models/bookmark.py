@@ -1,5 +1,4 @@
-from sqlalchemy import Column, ForeignKey, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.models.base import BaseModel
 
@@ -10,13 +9,13 @@ class Bookmark(BaseModel):
     __tablename__ = 'bookmarks'
 
     user_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
         index=True
     )
     post_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('posts.id', ondelete='CASCADE'),
         nullable=False,
         index=True

@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, DateTime
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, DateTime
 from app.extensions import db
 
 
@@ -11,9 +10,9 @@ class BaseModel(db.Model):
     __abstract__ = True
 
     id = Column(
-        UUID(as_uuid=True),
+        String(36),
         primary_key=True,
-        default=uuid.uuid4,
+        default=lambda: str(uuid.uuid4()),
         nullable=False
     )
     created_at = Column(

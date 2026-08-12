@@ -134,6 +134,7 @@ def register_blueprints(app):
     from app.search.routes import search_bp
     from app.admin.routes import admin_bp
     from app.trending.routes import trending_bp
+    from app.frontend.routes import frontend_bp
 
     app.register_blueprint(health_bp, url_prefix='/api/v1')
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
@@ -151,3 +152,4 @@ def register_blueprints(app):
     app.register_blueprint(search_bp, url_prefix='/api/v1')
     app.register_blueprint(admin_bp, url_prefix='/api/v1')
     app.register_blueprint(trending_bp, url_prefix='/api/v1')
+    app.register_blueprint(frontend_bp)

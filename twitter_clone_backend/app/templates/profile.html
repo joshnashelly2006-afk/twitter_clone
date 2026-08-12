@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{ username }} / Twitter Clone{% endblock %}
+
+{% block content %}
+<header class="feed-header glass-panel sticky-header profile-header">
+    <div class="back-nav">
+        <a href="/feed" class="back-btn"><i class="ph ph-arrow-left"></i></a>
+        <div class="header-user-info">
+            <h2 id="header-display-name">{{ username }}</h2>
+            <span class="post-count" id="header-post-count">... posts</span>
+        </div>
+    </div>
+</header>
+
+<div class="profile-hero glass-panel">
+    <div class="cover-photo-placeholder"></div>
+    <div class="profile-details-section">
+        <div class="profile-avatar-row">
+            <div class="profile-avatar-placeholder"></div>
+            <div class="profile-actions" id="profile-actions-container">
+                <!-- Follow / Edit Profile button inserted here -->
+            </div>
+        </div>
+        <div class="profile-info-text">
+            <h1 class="profile-display-name" id="profile-display-name">{{ username }}</h1>
+            <span class="profile-username" id="profile-username">@{{ username }}</span>
+            <p class="profile-bio" id="profile-bio"></p>
+            <div class="profile-meta">
+                <span><i class="ph ph-calendar-blank"></i> Joined <span id="profile-joined-date">...</span></span>
+            </div>
+            <div class="profile-stats">
+                <a href="#"><strong id="profile-following-count">0</strong> <span class="stat-label">Following</span></a>
+                <a href="#"><strong id="profile-followers-count">0</strong> <span class="stat-label">Followers</span></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="feed-tabs">
+    <button class="tab-btn active">Posts</button>
+    <button class="tab-btn">Replies</button>
+    <button class="tab-btn">Media</button>
+    <button class="tab-btn">Likes</button>
+</div>
+
+<div id="profile-feed-container" class="feed-container">
+    <div class="loading-spinner">
+        <i class="ph ph-spinner ph-spin"></i>
+    </div>
+</div>
+
+<!-- Invisible input to pass username to JS -->
+<input type="hidden" id="viewed-username" value="{{ username }}">
+{% endblock %}

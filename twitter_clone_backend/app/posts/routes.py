@@ -149,7 +149,7 @@ def get_global_explore():
     }), 200
 
 
-@posts_bp.route('/posts/<uuid:post_id>', methods=['GET'])
+@posts_bp.route('/posts/<string:post_id>', methods=['GET'])
 def get_single_post(post_id):
     """
     Get Single Post Endpoint
@@ -271,7 +271,7 @@ def get_posts_by_user_id(user_id):
     }), 200
 
 
-@posts_bp.route('/posts/<uuid:post_id>', methods=['PUT'])
+@posts_bp.route('/posts/<string:post_id>', methods=['PUT'])
 @jwt_required()
 def update_existing_post(post_id):
     """
@@ -313,7 +313,7 @@ def update_existing_post(post_id):
     }), 200
 
 
-@posts_bp.route('/posts/<uuid:post_id>', methods=['DELETE'])
+@posts_bp.route('/posts/<string:post_id>', methods=['DELETE'])
 @jwt_required()
 def delete_existing_post(post_id):
     """

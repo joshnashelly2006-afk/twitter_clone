@@ -1,5 +1,4 @@
 from sqlalchemy import Column, String, Text, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.models.base import BaseModel
 
@@ -10,19 +9,19 @@ class Report(BaseModel):
     __tablename__ = 'reports'
 
     reporter_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
         index=True
     )
     reported_user_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('users.id', ondelete='CASCADE'),
         nullable=True,
         index=True
     )
     reported_post_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('posts.id', ondelete='CASCADE'),
         nullable=True,
         index=True

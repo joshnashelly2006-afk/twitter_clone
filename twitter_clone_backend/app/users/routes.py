@@ -11,7 +11,8 @@ from app.users.services import (
     get_public_user_profile,
     search_users,
     upload_profile_picture,
-    delete_profile_picture
+    delete_profile_picture,
+    get_public_user_profile_by_username
 )
 
 users_bp = Blueprint('users', __name__)
@@ -75,7 +76,7 @@ def update_my_profile():
     }), 200
 
 
-@users_bp.route('/<uuid:user_id>', methods=['GET'])
+@users_bp.route('/<string:user_id>', methods=['GET'])
 def get_user_by_id(user_id):
     """
     View Public Profile Endpoint
@@ -96,6 +97,20 @@ def get_user_by_id(user_id):
         description: User not found
     """
     profile = get_public_user_profile(str(user_id))
+
+    return jsonify({
+        'success': True,
+        'message': 'Public profile retrieved successfully.',
+        'data': profile
+    }), 200
+
+
+@users_bp.route('/username/<string:username>', methods=['GET'])
+def get_user_by_username(username):
+    """
+    View Public Profile by Username Endpoint
+    """
+    profile = get_public_user_profile_by_username(username)
 
     return jsonify({
         'success': True,

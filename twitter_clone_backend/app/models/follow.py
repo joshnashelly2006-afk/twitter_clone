@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, UniqueConstraint, CheckConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import String
 from sqlalchemy.orm import relationship
 from app.models.base import BaseModel
 
@@ -10,12 +10,12 @@ class Follow(BaseModel):
     __tablename__ = 'follows'
 
     follower_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False
     )
     following_id = Column(
-        UUID(as_uuid=True),
+        String(36),
         ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False
     )

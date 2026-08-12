@@ -33,6 +33,8 @@ env/
 # Environment Variables
 .env
 .env.local
+.env.development
+.env.production
 
 # Database / Instance
 *.db
