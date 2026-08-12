@@ -57,7 +57,7 @@ def process_hashtags_and_mentions(post):
 
 def format_post_dict(post, current_user_id=None):
     """Format single Post model instance to JSON dictionary."""
-    author = User.query.get(post.user_id)
+    author = db.session.get(User, post.user_id)
     author_dict = {
         'id': str(author.id),
         'username': author.username,
@@ -156,7 +156,7 @@ def create_post(user_id, content, file_storage):
     """
     Create a new post with optional image/video media attachment.
     """
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user or not user.is_active or user.is_suspended:
         raise NotFoundError('User account not found or suspended.')
 
@@ -247,7 +247,7 @@ def get_personalized_feed(current_user_id, page=1, per_page=10):
     """
     Retrieve personalized feed containing posts from followed users + own posts, sorted newest first.
     """
-    user = User.query.get(current_user_id)
+    user = db.session.get(User, current_user_id)
     if not user or not user.is_active:
         raise NotFoundError('User account not found.')
 

@@ -97,7 +97,7 @@ def get_current_user_profile(user_id):
     """
     Fetch user profile data by user UUID.
     """
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user or not user.is_active:
         raise NotFoundError('User profile not found.')
 
