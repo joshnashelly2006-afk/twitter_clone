@@ -74,7 +74,7 @@ def admin_users_list():
     }), 200
 
 
-@admin_bp.route('/admin/users/<uuid:user_id>/suspend', methods=['PUT'])
+@admin_bp.route('/admin/users/<string:user_id>/suspend', methods=['PUT'])
 @jwt_required()
 def suspend_user(user_id):
     """
@@ -157,7 +157,7 @@ def admin_reports_list():
     }), 200
 
 
-@admin_bp.route('/admin/reports/<uuid:report_id>', methods=['PUT'])
+@admin_bp.route('/admin/reports/<string:report_id>', methods=['PUT'])
 @jwt_required()
 def update_report(report_id):
     """
@@ -199,7 +199,7 @@ def update_report(report_id):
     }), 200
 
 
-@admin_bp.route('/admin/posts/<uuid:post_id>', methods=['DELETE'])
+@admin_bp.route('/admin/posts/<string:post_id>', methods=['DELETE'])
 @jwt_required()
 def admin_remove_post(post_id):
     """

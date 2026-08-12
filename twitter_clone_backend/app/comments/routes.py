@@ -95,7 +95,7 @@ def get_comments_for_post(post_id):
     }), 200
 
 
-@comments_bp.route('/comments/<uuid:comment_id>', methods=['PUT'])
+@comments_bp.route('/comments/<string:comment_id>', methods=['PUT'])
 @jwt_required()
 def edit_comment(comment_id):
     """
@@ -138,7 +138,7 @@ def edit_comment(comment_id):
     }), 200
 
 
-@comments_bp.route('/comments/<uuid:comment_id>', methods=['DELETE'])
+@comments_bp.route('/comments/<string:comment_id>', methods=['DELETE'])
 @jwt_required()
 def delete_existing_comment(comment_id):
     """

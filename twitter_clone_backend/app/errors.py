@@ -155,6 +155,7 @@ def register_error_handlers(app):
 
     @app.errorhandler(500)
     def internal_server_error(error):
+        app.logger.error(f"Internal Server Error: {error}", exc_info=True)
         return jsonify({
             'success': False,
             'message': 'An unexpected server error occurred',

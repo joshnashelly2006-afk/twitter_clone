@@ -61,14 +61,17 @@ def register_user(validated_data):
 
 def authenticate_user(validated_data):
     """
-    Authenticate user credentials and issue JWT access and refresh tokens.
+    Authenticate user credentials (by email or username) and issue JWT access and refresh tokens.
     """
-    email = validated_data['email']
+    identifier = validated_data['identifier']
     password = validated_data['password']
 
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter(
+        (User.email == identifier.lower()) | (User.username == identifier)
+    ).first()
+
     if not user or not bcrypt.check_password_hash(user.password_hash, password):
-        raise UnauthorizedError('Invalid email or password.')
+        raise UnauthorizedError('Invalid email/username or password.')
 
     if not user.is_active:
         raise UnauthorizedError('User account is deactivated.')

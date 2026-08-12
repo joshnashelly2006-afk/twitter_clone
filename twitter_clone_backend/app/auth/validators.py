@@ -52,22 +52,20 @@ def validate_registration_input(data):
 
 
 def validate_login_input(data):
-    """Validate login payload."""
+    """Validate login payload (supports email or username)."""
     if not data or not isinstance(data, dict):
         raise ValidationError('Request body must be a valid JSON object.')
 
-    email = data.get('email')
+    identifier = data.get('email') or data.get('username') or data.get('emailOrUsername')
     password = data.get('password')
 
-    if not email or not str(email).strip():
-        raise ValidationError('Email is required.')
-
-    validate_email_format(str(email).strip())
+    if not identifier or not str(identifier).strip():
+        raise ValidationError('Email or username is required.')
 
     if not password:
         raise ValidationError('Password is required.')
 
     return {
-        'email': str(email).strip().lower(),
+        'identifier': str(identifier).strip(),
         'password': str(password)
     }

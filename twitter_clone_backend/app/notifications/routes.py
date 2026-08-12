@@ -71,7 +71,7 @@ def unread_count():
     }), 200
 
 
-@notifications_bp.route('/notifications/<uuid:notification_id>/read', methods=['PUT'])
+@notifications_bp.route('/notifications/<string:notification_id>/read', methods=['PUT'])
 @jwt_required()
 def mark_read(notification_id):
     """
@@ -125,7 +125,7 @@ def mark_all_read():
     }), 200
 
 
-@notifications_bp.route('/notifications/<uuid:notification_id>', methods=['DELETE'])
+@notifications_bp.route('/notifications/<string:notification_id>', methods=['DELETE'])
 @jwt_required()
 def remove_notification(notification_id):
     """

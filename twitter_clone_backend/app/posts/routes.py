@@ -224,7 +224,7 @@ def get_my_own_posts():
     }), 200
 
 
-@posts_bp.route('/posts/user/<uuid:user_id>', methods=['GET'])
+@posts_bp.route('/posts/user/<string:user_id>', methods=['GET'])
 def get_posts_by_user_id(user_id):
     """
     Get Posts by User Endpoint
