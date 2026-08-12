@@ -161,7 +161,7 @@ def search():
 
 @users_bp.route('/me/profile-picture', methods=['POST'])
 @jwt_required()
-@limiter.limit("10 per minute")
+@limiter.limit("60 per minute")
 def upload_my_profile_picture():
     """
     Upload Profile Picture Endpoint

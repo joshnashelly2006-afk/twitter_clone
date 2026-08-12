@@ -18,7 +18,7 @@ auth_bp = Blueprint('auth', __name__)
 
 
 @auth_bp.route('/register', methods=['POST'])
-@limiter.limit("3 per minute")
+@limiter.limit("30 per minute")
 def register():
     """
     User Registration Endpoint
@@ -59,7 +59,7 @@ def register():
       409:
         description: Conflict error
       429:
-        description: Rate limit exceeded (3 requests per minute)
+        description: Rate limit exceeded
     """
     data = request.get_json()
     validated_data = validate_registration_input(data)
@@ -73,7 +73,7 @@ def register():
 
 
 @auth_bp.route('/login', methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("60 per minute")
 def login():
     """
     User Login Endpoint

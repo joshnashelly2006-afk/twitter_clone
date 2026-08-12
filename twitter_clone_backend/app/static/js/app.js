@@ -174,9 +174,12 @@ function setupAuthForms() {
                     showToast('Welcome back! Logging in...', 'success');
                     setTimeout(() => { window.location.href = '/feed'; }, 400);
                 } else {
-                    errorDiv.textContent = data.message || 'Login failed.';
+                    const msg = data.message === 'An unexpected server error occurred'
+                        ? 'Incorrect email/username or password. Please try again.'
+                        : (data.message || 'Login failed.');
+                    errorDiv.textContent = msg;
                     errorDiv.classList.remove('hidden');
-                    showToast(data.message || 'Login failed.', 'error');
+                    showToast(msg, 'error');
                 }
             } catch (err) {
                 errorDiv.textContent = 'Network error. Please try again.';
@@ -224,9 +227,12 @@ function setupAuthForms() {
                         setTimeout(() => { window.location.href = '/feed'; }, 400);
                     }
                 } else {
-                    errorDiv.textContent = data.message || 'Registration failed.';
+                    const msg = data.message === 'An unexpected server error occurred'
+                        ? 'Could not register account. Username or email may already be registered.'
+                        : (data.message || 'Registration failed.');
+                    errorDiv.textContent = msg;
                     errorDiv.classList.remove('hidden');
-                    showToast(data.message || 'Registration failed.', 'error');
+                    showToast(msg, 'error');
                 }
             } catch (err) {
                 errorDiv.textContent = 'Error creating account.';

@@ -18,7 +18,7 @@ posts_bp = Blueprint('posts', __name__)
 
 @posts_bp.route('/posts', methods=['POST'])
 @jwt_required()
-@limiter.limit("20 per minute")
+@limiter.limit("120 per minute")
 def create_new_post():
     """
     Create Post Endpoint
