@@ -151,7 +151,17 @@
             </div>
             <div class="mobile-compose-body">
                 <div class="avatar-placeholder" style="width:40px;height:40px;flex-shrink:0;"></div>
-                <textarea id="mobile-compose-textarea" placeholder="What's happening?" rows="4"></textarea>
+                <div style="flex:1; min-width:0;">
+                    <textarea id="mobile-compose-textarea" placeholder="What's happening?" rows="4"></textarea>
+                    <div id="mobile-compose-media-preview-area" class="hidden"></div>
+                    <div class="compose-tools" style="margin-top:8px;">
+                        <label for="mobile-compose-file-input" style="cursor:pointer; display:flex; align-items:center;">
+                            <i class="ph ph-image" title="Attach Media"></i>
+                        </label>
+                        <input type="file" id="mobile-compose-file-input" accept="image/*,video/*" style="display:none;">
+                        <i class="ph ph-smiley" id="mobile-compose-emoji-btn" title="Emoji"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

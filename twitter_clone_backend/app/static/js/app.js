@@ -56,10 +56,12 @@ function renderSkeletons(container, count = 3) {
 
 async function apiFetch(endpoint, options = {}) {
     const token = getToken();
-    const headers = {
-        'Content-Type': 'application/json',
-        ...options.headers
-    };
+    const headers = { ...options.headers };
+
+    // Don't set Content-Type if body is FormData
+    if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+        headers['Content-Type'] = 'application/json';
+    }
 
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -403,6 +405,16 @@ function createPostElement(post) {
     const isLiked = post.liked_by_me || post.is_liked_by_current_user || false;
     const postId = post.id || post.post_id;
     
+    let mediaHTML = '';
+    if (post.media_path) {
+        const mediaUrl = post.media_path.startsWith('/') ? post.media_path : '/' + post.media_path;
+        if (post.media_type === 'image') {
+            mediaHTML = `<div class="post-media-container"><img src="${mediaUrl}" class="post-media-image" alt="Attachment" loading="lazy"></div>`;
+        } else if (post.media_type === 'video') {
+            mediaHTML = `<div class="post-media-container"><video src="${mediaUrl}" controls class="post-media-video"></video></div>`;
+        }
+    }
+
     div.innerHTML = `
         <div class="avatar-placeholder" onclick="event.stopPropagation(); window.location.href='/${username}'"></div>
         <div class="post-content-container">
@@ -412,6 +424,7 @@ function createPostElement(post) {
                 <span class="post-time">· ${formatTime(post.created_at)}</span>
             </div>
             <div class="post-text">${escapeHTML(content)}</div>
+            ${mediaHTML}
             <div class="post-actions">
                 <div class="post-action action-reply">
                     <i class="ph ph-chat-circle"></i>
@@ -479,29 +492,80 @@ function createPostElement(post) {
     return div;
 }
 
-// --- Compose Post & Character Limit ---
+// --- Compose Post, Media Attachment & Emoji Picker ---
+
+let activeDesktopFile = null;
+let activeMobileFile = null;
 
 function setupComposePost() {
     const desktopTextarea = document.getElementById('compose-textarea');
     const desktopBtn = document.getElementById('submit-post-btn');
     const desktopCounter = document.getElementById('desktop-char-counter');
+    const desktopFileInput = document.getElementById('compose-file-input');
+    const desktopPreviewArea = document.getElementById('compose-media-preview-area');
+    const desktopEmojiBtn = document.getElementById('compose-emoji-btn');
+    const desktopEmojiPickerContainer = document.getElementById('compose-emoji-picker-container');
 
     if (desktopTextarea) {
         bindCharCounter(desktopTextarea, desktopCounter, desktopBtn);
     }
-    if (desktopBtn && desktopTextarea) {
-        desktopBtn.addEventListener('click', () => submitPost(desktopTextarea, desktopBtn));
+
+    if (desktopFileInput && desktopPreviewArea) {
+        desktopFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                activeDesktopFile = file;
+                renderMediaPreview(file, desktopPreviewArea, () => {
+                    activeDesktopFile = null;
+                    desktopFileInput.value = '';
+                });
+            }
+        });
     }
 
+    if (desktopEmojiBtn && desktopEmojiPickerContainer && desktopTextarea) {
+        setupEmojiPicker(desktopEmojiBtn, desktopEmojiPickerContainer, desktopTextarea);
+    }
+
+    if (desktopBtn && desktopTextarea) {
+        desktopBtn.addEventListener('click', () => {
+            submitPost(desktopTextarea, desktopBtn, activeDesktopFile, () => {
+                activeDesktopFile = null;
+                if (desktopFileInput) desktopFileInput.value = '';
+                if (desktopPreviewArea) {
+                    desktopPreviewArea.innerHTML = '';
+                    desktopPreviewArea.classList.add('hidden');
+                }
+            });
+        });
+    }
+
+    // --- Mobile FAB & Bottom Sheet Modal ---
     const fab = document.getElementById('mobile-compose-fab');
     const modal = document.getElementById('mobile-compose-modal');
     const closeBtn = document.getElementById('mobile-compose-close');
     const mobileTextarea = document.getElementById('mobile-compose-textarea');
     const mobileSubmitBtn = document.getElementById('mobile-submit-post-btn');
     const mobileCounter = document.getElementById('mobile-char-counter');
+    const mobileFileInput = document.getElementById('mobile-compose-file-input');
+    const mobilePreviewArea = document.getElementById('mobile-compose-media-preview-area');
+    const mobileEmojiBtn = document.getElementById('mobile-compose-emoji-btn');
 
     if (mobileTextarea) {
         bindCharCounter(mobileTextarea, mobileCounter, mobileSubmitBtn);
+    }
+
+    if (mobileFileInput && mobilePreviewArea) {
+        mobileFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                activeMobileFile = file;
+                renderMediaPreview(file, mobilePreviewArea, () => {
+                    activeMobileFile = null;
+                    mobileFileInput.value = '';
+                });
+            }
+        });
     }
 
     if (fab && modal) {
@@ -520,11 +584,80 @@ function setupComposePost() {
 
         if (mobileSubmitBtn && mobileTextarea) {
             mobileSubmitBtn.addEventListener('click', async () => {
-                await submitPost(mobileTextarea, mobileSubmitBtn);
+                await submitPost(mobileTextarea, mobileSubmitBtn, activeMobileFile, () => {
+                    activeMobileFile = null;
+                    if (mobileFileInput) mobileFileInput.value = '';
+                    if (mobilePreviewArea) {
+                        mobilePreviewArea.innerHTML = '';
+                        mobilePreviewArea.classList.add('hidden');
+                    }
+                });
                 modal.classList.remove('open');
             });
         }
     }
+}
+
+function renderMediaPreview(file, previewAreaEl, onRemove) {
+    if (!file || !previewAreaEl) return;
+    previewAreaEl.classList.remove('hidden');
+
+    const fileUrl = URL.createObjectURL(file);
+    const isVideo = file.type.startsWith('video/');
+
+    previewAreaEl.innerHTML = `
+        <div class="media-preview-container">
+            <button type="button" class="media-preview-remove" title="Remove media">
+                <i class="ph ph-x"></i>
+            </button>
+            ${isVideo ? `<video src="${fileUrl}" controls></video>` : `<img src="${fileUrl}" alt="Media preview">`}
+        </div>
+    `;
+
+    const removeBtn = previewAreaEl.querySelector('.media-preview-remove');
+    if (removeBtn) {
+        removeBtn.addEventListener('click', () => {
+            previewAreaEl.innerHTML = '';
+            previewAreaEl.classList.add('hidden');
+            URL.revokeObjectURL(fileUrl);
+            if (onRemove) onRemove();
+        });
+    }
+}
+
+function setupEmojiPicker(triggerBtn, containerEl, textareaEl) {
+    const emojis = ['😂', '❤️', '🔥', '👍', '✨', '🚀', '💯', '🎉', '🥳', '👏', '💩', '🎈', '👀', '💡', '🎯', '🧠', '⭐', '⚡'];
+    let isOpen = false;
+
+    triggerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        isOpen = !isOpen;
+        if (isOpen) {
+            let itemsHTML = emojis.map(em => `<span class="emoji-item">${em}</span>`).join('');
+            containerEl.innerHTML = `<div class="emoji-picker-popup">${itemsHTML}</div>`;
+            containerEl.classList.remove('hidden');
+
+            containerEl.querySelectorAll('.emoji-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const em = item.textContent;
+                    textareaEl.value += em;
+                    textareaEl.dispatchEvent(new Event('input'));
+                    textareaEl.focus();
+                });
+            });
+        } else {
+            containerEl.innerHTML = '';
+            containerEl.classList.add('hidden');
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (isOpen && !containerEl.contains(e.target) && e.target !== triggerBtn) {
+            isOpen = false;
+            containerEl.innerHTML = '';
+            containerEl.classList.add('hidden');
+        }
+    });
 }
 
 function bindCharCounter(textarea, counterEl, submitBtn) {
@@ -538,30 +671,49 @@ function bindCharCounter(textarea, counterEl, submitBtn) {
             if (len > MAX) counterEl.classList.add('exceeded');
         }
         if (submitBtn) {
-            submitBtn.disabled = len === 0 || len > MAX;
+            submitBtn.disabled = len === 0 && !activeDesktopFile && !activeMobileFile || len > MAX;
         }
     });
 }
 
-async function submitPost(textarea, btn) {
+async function submitPost(textarea, btn, attachedFile, onSuccess) {
     const content = textarea.value.trim();
-    if (!content || content.length > 280) return;
+    if (!content && !attachedFile) {
+        showToast('Please enter text or select a media file.', 'error');
+        return;
+    }
+    if (content.length > 280) return;
 
     btn.disabled = true;
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i>';
 
     try {
-        const res = await apiFetch('/posts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content })
-        });
+        let options = {};
+        if (attachedFile) {
+            const formData = new FormData();
+            formData.append('content', content);
+            formData.append('media', attachedFile);
+            options = {
+                method: 'POST',
+                body: formData
+            };
+        } else {
+            options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content })
+            };
+        }
+
+        const res = await apiFetch('/posts', options);
 
         if (res.ok) {
             const data = await res.json();
             textarea.value = '';
             showToast('Post published! ✨', 'success');
+
+            if (onSuccess) onSuccess();
 
             const container = document.getElementById('feed-container');
             if (container) {
@@ -591,7 +743,6 @@ async function toggleFollow(userId, btnElement, username = '') {
     const isFollowing = btnElement.classList.contains('following') || btnElement.textContent.trim() === 'Following';
     const method = isFollowing ? 'DELETE' : 'POST';
 
-    // Optimistic state
     btnElement.textContent = isFollowing ? 'Follow' : 'Following';
     btnElement.classList.toggle('following');
 
@@ -601,7 +752,6 @@ async function toggleFollow(userId, btnElement, username = '') {
             const label = username ? `@${username}` : 'user';
             showToast(isFollowing ? `Unfollowed ${label}` : `Following ${label}! ✨`, 'info');
         } else {
-            // Revert
             btnElement.textContent = isFollowing ? 'Following' : 'Follow';
             btnElement.classList.toggle('following');
             showToast('Follow request failed.', 'error');
@@ -697,7 +847,6 @@ async function performGlobalSearch(query) {
                     </div>
                 `;
 
-                // Render User Results
                 if (results.users && results.users.length > 0) {
                     results.users.forEach(u => {
                         const uEl = document.createElement('div');
@@ -724,7 +873,6 @@ async function performGlobalSearch(query) {
                     });
                 }
 
-                // Render Post Results
                 if (results.posts && results.posts.length > 0) {
                     results.posts.forEach(post => {
                         feedContainer.appendChild(createPostElement(post));

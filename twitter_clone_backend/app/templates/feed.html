@@ -17,11 +17,21 @@
     </div>
     <div class="compose-form">
         <textarea id="compose-textarea" placeholder="What is happening?!"></textarea>
+        
+        <!-- Media File Preview Container -->
+        <div id="compose-media-preview-area" class="hidden"></div>
+        
+        <!-- Emoji Picker Container -->
+        <div id="compose-emoji-picker-container" class="hidden"></div>
+
         <div class="compose-actions">
             <div class="compose-tools">
-                <i class="ph ph-image" title="Media attachment"></i>
-                <i class="ph ph-gif" title="GIF"></i>
-                <i class="ph ph-smiley" title="Emoji"></i>
+                <label for="compose-file-input" style="cursor:pointer; display:flex; align-items:center;">
+                    <i class="ph ph-image" title="Attach Image/Video"></i>
+                </label>
+                <input type="file" id="compose-file-input" accept="image/*,video/*" style="display:none;">
+                <i class="ph ph-gif" title="GIF" id="compose-gif-btn"></i>
+                <i class="ph ph-smiley" title="Emoji" id="compose-emoji-btn"></i>
             </div>
             <div class="compose-right-controls">
                 <span class="char-counter" id="desktop-char-counter">0/280</span>
